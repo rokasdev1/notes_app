@@ -1,6 +1,6 @@
-# realmnotes
+# notes_app
 
-A new Flutter project.
+Simple notes app with HIVE database
 
 ## Getting Started
 
