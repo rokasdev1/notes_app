@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:realmnotes/note_creation_page.dart';
@@ -76,7 +78,31 @@ class _HomePageState extends State<HomePage> {
                       subtitle: Text(note.date?.substring(0, 19) ?? ''),
                       trailing: IconButton(
                           onPressed: () {
-                            noteBox.deleteAt(index);
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return BackdropFilter(
+                                  filter:
+                                      ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                                  child: AlertDialog(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    backgroundColor:
+                                        const Color.fromRGBO(45, 31, 242, 1),
+                                    title: const Text('Are you sure?'),
+                                    content: IconButton(
+                                        onPressed: () {
+                                          noteBox.deleteAt(index);
+                                          Navigator.pop(context);
+                                        },
+                                        icon: const Icon(
+                                          Icons.delete,
+                                        )),
+                                  ),
+                                );
+                              },
+                            );
                           },
                           icon: const Icon(Icons.delete)),
                     ),
