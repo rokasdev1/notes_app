@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 import 'package:realmnotes/provider.dart';
@@ -18,6 +19,10 @@ class NoteDetailsPage extends ConsumerStatefulWidget {
 class _NoteDetailsPageState extends ConsumerState<NoteDetailsPage> {
   final TextEditingController titleController = TextEditingController();
   final TextEditingController contentController = TextEditingController();
+  final UndoHistoryController undoRedoController = UndoHistoryController();
+
+  Color enabledStyle = Colors.white;
+  Color disabledStyle = Colors.grey.shade800;
 
   late Box noteBox;
   @override
@@ -36,7 +41,7 @@ class _NoteDetailsPageState extends ConsumerState<NoteDetailsPage> {
     titleController.dispose();
     contentController.dispose();
     contentController.removeListener(characterListen);
-
+    undoRedoController.dispose();
     super.dispose();
   }
 
@@ -46,23 +51,57 @@ class _NoteDetailsPageState extends ConsumerState<NoteDetailsPage> {
       backgroundColor: const Color.fromRGBO(7, 7, 11, 1.0),
       appBar: AppBar(
         backgroundColor: const Color.fromRGBO(7, 7, 11, 1.0),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-            backgroundColor: const Color.fromRGBO(45, 31, 242, 1),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            )),
-        onPressed: () {
-          final newNote = Note(
-              title: titleController.text,
-              content: contentController.text,
-              date: DateTime.now().toString());
-          noteBox.putAt(widget.index, newNote);
-          Navigator.pop(context);
-        },
-        child: const Text('Update'),
+        actions: [
+          ValueListenableBuilder(
+            valueListenable: undoRedoController,
+            builder: (context, value, child) {
+              return Row(
+                children: [
+                  IconButton(
+                      splashRadius: 0.1,
+                      onPressed: () =>
+                          value.canUndo ? undoRedoController.undo() : null,
+                      icon: Icon(
+                        Icons.undo,
+                        color: value.canUndo ? enabledStyle : disabledStyle,
+                      )),
+                  IconButton(
+                      splashRadius: 0.1,
+                      onPressed: () =>
+                          value.canRedo ? undoRedoController.redo() : null,
+                      icon: Icon(
+                        Icons.redo,
+                        color: value.canRedo ? enabledStyle : disabledStyle,
+                      )),
+                ],
+              );
+            },
+          ),
+          IconButton(
+              onPressed: () {
+                Clipboard.setData(ClipboardData(
+                    text:
+                        '${titleController.text}\n${contentController.text}'));
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: const Text(
+                    'Copied to clipboard',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  backgroundColor: Colors.grey[900],
+                ));
+              },
+              icon: const Icon(Icons.copy)),
+          IconButton(
+              onPressed: () {
+                final newNote = Note(
+                    title: titleController.text,
+                    content: contentController.text,
+                    date: DateTime.now().toString());
+                noteBox.putAt(widget.index, newNote);
+                Navigator.pop(context);
+              },
+              icon: const Icon(Icons.check))
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.only(left: 20, right: 20),
@@ -85,7 +124,7 @@ class _NoteDetailsPageState extends ConsumerState<NoteDetailsPage> {
                       color: Color.fromARGB(92, 238, 238, 238), fontSize: 13),
                 ),
                 Text(
-                  '   -   ${ref.watch(characterProvider)} characters',
+                  '   |   ${ref.watch(characterProvider)} characters',
                   style: const TextStyle(
                       color: Color.fromARGB(92, 238, 238, 238), fontSize: 13),
                 ),
@@ -94,6 +133,7 @@ class _NoteDetailsPageState extends ConsumerState<NoteDetailsPage> {
             const SizedBox(height: 10),
             TextField(
               controller: contentController,
+              undoController: undoRedoController,
               maxLines: null,
               decoration: const InputDecoration(
                   hintText: 'Start typing',
