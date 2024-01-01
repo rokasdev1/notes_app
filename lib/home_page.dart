@@ -37,17 +37,21 @@ class _HomePageState extends State<HomePage> {
         ),
         actions: const [],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const NoteCreationPage(),
-              ));
-        },
-        backgroundColor: const Color.fromRGBO(45, 31, 242, 1.0),
-        foregroundColor: Colors.white,
-        child: const Icon(Icons.add),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 15),
+        child: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const NoteCreationPage(),
+                ));
+          },
+          backgroundColor: const Color.fromRGBO(45, 31, 242, 1.0),
+          foregroundColor: Colors.white,
+          child: const Icon(Icons.add),
+        ),
       ),
       body: ValueListenableBuilder(
         valueListenable: noteBox.listenable(),

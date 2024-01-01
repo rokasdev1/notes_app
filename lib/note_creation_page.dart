@@ -41,6 +41,7 @@ class _NoteCreationPageState extends ConsumerState<NoteCreationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: const Color.fromRGBO(7, 7, 11, 1.0),
       appBar: AppBar(
         backgroundColor: const Color.fromRGBO(7, 7, 11, 1.0),

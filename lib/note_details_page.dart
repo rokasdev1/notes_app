@@ -7,8 +7,8 @@ import 'package:realmnotes/provider.dart';
 import 'note_model.dart';
 
 class NoteDetailsPage extends ConsumerStatefulWidget {
-  final noteInfo;
-  final index;
+  final Note noteInfo;
+  final int index;
   const NoteDetailsPage(
       {super.key, required this.noteInfo, required this.index});
 
@@ -48,6 +48,7 @@ class _NoteDetailsPageState extends ConsumerState<NoteDetailsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: const Color.fromRGBO(7, 7, 11, 1.0),
       appBar: AppBar(
         backgroundColor: const Color.fromRGBO(7, 7, 11, 1.0),
@@ -119,7 +120,7 @@ class _NoteDetailsPageState extends ConsumerState<NoteDetailsPage> {
             Row(
               children: [
                 Text(
-                  widget.noteInfo.date.substring(0, 19),
+                  widget.noteInfo.date?.substring(0, 19) ?? '',
                   style: const TextStyle(
                       color: Color.fromARGB(92, 238, 238, 238), fontSize: 13),
                 ),
