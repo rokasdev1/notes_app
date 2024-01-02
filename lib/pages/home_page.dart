@@ -152,8 +152,9 @@ class _HomePageState extends ConsumerState<HomePage> {
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(20),
                                   ),
-                                  backgroundColor:
-                                      getColorFromSettings(settingsBox.get(1)),
+                                  backgroundColor: getColorFromSettings(ref
+                                      .watch(selectedColorOption)
+                                      .toString()),
                                   title: const Text(
                                     'Are you sure?',
                                   ),
