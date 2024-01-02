@@ -1,21 +1,55 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:realmnotes/note_creation_page.dart';
-import 'package:realmnotes/note_details_page.dart';
+import 'package:realmnotes/pages/note_creation_page.dart';
+import 'package:realmnotes/pages/note_details_page.dart';
+import 'package:realmnotes/pages/settings_page.dart';
+import 'package:realmnotes/provider.dart';
 
-import 'note_model.dart';
+import '../models/note_model.dart';
 
-class HomePage extends StatefulWidget {
+class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  ConsumerState<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends ConsumerState<HomePage> {
   late Box noteBox;
+  final settingsBox = Hive.box('settings');
+
+  Color getColorFromSettings(String colorKey) {
+    switch (colorKey) {
+      case 'Green':
+        return Colors.green.shade800;
+      case 'Blue':
+        return Colors.blue.shade900;
+      case 'Red':
+        return Colors.red.shade900;
+      case 'Purple':
+        return const Color.fromRGBO(45, 31, 242, 1.0);
+
+      default:
+        return Colors.black;
+    }
+  }
+
+  int getSortOptions(String sorting, int index) {
+    int reversedIndex = noteBox.length - 1 - index;
+    switch (sorting) {
+      case 'Newest':
+        return reversedIndex;
+      case 'Oldest':
+        return index;
+
+      default:
+        index;
+    }
+    return reversedIndex;
+  }
 
   @override
   void initState() {
@@ -35,7 +69,15 @@ class _HomePageState extends State<HomePage> {
           'Notes',
           style: TextStyle(fontSize: 40),
         ),
-        actions: const [],
+        actions: [
+          IconButton(
+              onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const SettingsPage(),
+                  )),
+              icon: const Icon(Icons.settings))
+        ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: Padding(
@@ -48,7 +90,8 @@ class _HomePageState extends State<HomePage> {
                   builder: (context) => const NoteCreationPage(),
                 ));
           },
-          backgroundColor: const Color.fromRGBO(45, 31, 242, 1.0),
+          backgroundColor:
+              getColorFromSettings(ref.watch(selectedColorOption).toString()),
           foregroundColor: Colors.white,
           child: const Icon(Icons.add),
         ),
@@ -69,18 +112,19 @@ class _HomePageState extends State<HomePage> {
             return ListView.builder(
               itemCount: noteBox.length,
               itemBuilder: (context, index) {
-                int reversedIndex = noteBox.length - 1 - index;
-                Note note = noteBox.getAt(reversedIndex)!;
+                Note note = noteBox.getAt(
+                    getSortOptions(ref.watch(sortByOption).toString(), index))!;
                 return Container(
                   margin:
                       const EdgeInsets.only(bottom: 10, left: 20, right: 20),
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
+                    gradient: LinearGradient(
                         begin: Alignment.centerRight,
                         end: Alignment.centerLeft,
                         colors: [
                           Colors.black,
-                          Color.fromRGBO(45, 31, 242, 1.0),
+                          getColorFromSettings(
+                              ref.watch(selectedColorOption).toString())
                         ]),
                     borderRadius: BorderRadius.circular(20),
                   ),
@@ -109,8 +153,10 @@ class _HomePageState extends State<HomePage> {
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                   backgroundColor:
-                                      const Color.fromRGBO(45, 31, 242, 1),
-                                  title: const Text('Are you sure?'),
+                                      getColorFromSettings(settingsBox.get(1)),
+                                  title: const Text(
+                                    'Are you sure?',
+                                  ),
                                   content: IconButton(
                                       onPressed: () {
                                         noteBox.deleteAt(index);
@@ -124,9 +170,10 @@ class _HomePageState extends State<HomePage> {
                             },
                           );
                         },
-                        icon: const Icon(
-                          Icons.delete_outline,
-                          color: Color.fromRGBO(99, 87, 255, 1),
+                        icon: Icon(
+                          Icons.delete,
+                          color: getColorFromSettings(
+                              ref.watch(selectedColorOption).toString()),
                         )),
                   ),
                 );

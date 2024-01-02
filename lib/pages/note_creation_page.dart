@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
-import 'package:realmnotes/note_model.dart';
+import 'package:realmnotes/models/note_model.dart';
 import 'package:realmnotes/provider.dart';
 
 class NoteCreationPage extends ConsumerStatefulWidget {

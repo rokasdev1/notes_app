@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 import 'package:realmnotes/provider.dart';
 
-import 'note_model.dart';
+import '../models/note_model.dart';
 
 class NoteDetailsPage extends ConsumerStatefulWidget {
   final Note noteInfo;
