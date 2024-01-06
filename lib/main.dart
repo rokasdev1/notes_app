@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:realmnotes/firebase_options.dart';
 import 'package:realmnotes/models/note_model.dart';
+import 'package:realmnotes/page_redirectors/auth.dart';
 import 'package:realmnotes/provider.dart';
 import 'pages/home_page.dart';
+import 'pages/login_page.dart';
+import 'setting_services.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -12,6 +17,10 @@ void main() async {
   await Hive.initFlutter();
   await Hive.openBox('notes');
   await Hive.openBox('settings');
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   runApp(const ProviderScope(child: MyApp()));
 }
@@ -25,20 +34,6 @@ class MyApp extends ConsumerStatefulWidget {
 
 class _MyAppState extends ConsumerState<MyApp> {
   final settingsBox = Hive.box('settings');
-
-  double getFontSize(String scale) {
-    switch (scale) {
-      case 'Small':
-        return 0.8;
-      case 'Medium':
-        return 1;
-      case 'Large':
-        return 1.2;
-
-      default:
-        return 1;
-    }
-  }
 
   @override
   void initState() {
@@ -65,7 +60,7 @@ class _MyAppState extends ConsumerState<MyApp> {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: ThemeData(brightness: Brightness.dark),
-        home: const HomePage(),
+        home: const AuthPage(),
       ),
     );
   }

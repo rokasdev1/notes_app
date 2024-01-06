@@ -1,3 +1,5 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -36,6 +38,20 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const Text(
+              'Account',
+              style: TextStyle(fontSize: 15, color: Colors.grey),
+            ),
+            ListTile(
+              title: Text(
+                FirebaseAuth.instance.currentUser?.email ?? '',
+                style: const TextStyle(fontSize: 17),
+              ),
+            ),
+            const Divider(
+              thickness: 2,
+            ),
+            const SizedBox(height: 20),
             const Text(
               'Style',
               style: TextStyle(fontSize: 15, color: Colors.grey),
@@ -139,6 +155,18 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 style: TextStyle(fontSize: 17),
               ),
               trailing: const Icon(Icons.arrow_right),
+            ),
+            ListTile(
+              onTap: () {
+                FirebaseAuth.instance.signOut();
+                Navigator.pop(context);
+              },
+              contentPadding: EdgeInsets.zero,
+              title: const Text(
+                'Log out',
+                style: TextStyle(fontSize: 17, color: Colors.red),
+              ),
+              trailing: const Icon(Icons.logout, color: Colors.red),
             ),
           ],
         ),

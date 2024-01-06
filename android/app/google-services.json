@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "138009536519",
+    "project_id": "notesapp-8e0bd",
+    "storage_bucket": "notesapp-8e0bd.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:138009536519:android:f9c8100839cb3eb944e2a2",
+        "android_client_info": {
+          "package_name": "com.example.realmnotes"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyABpT8hnmbNPSGZCw3nrw4SOK9Jhay26x4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

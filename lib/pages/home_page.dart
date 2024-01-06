@@ -1,5 +1,5 @@
 import 'dart:ui';
-
+import 'package:page_transition/page_transition.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -9,6 +9,7 @@ import 'package:realmnotes/pages/settings_page.dart';
 import 'package:realmnotes/provider.dart';
 
 import '../models/note_model.dart';
+import '../setting_services.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -20,36 +21,6 @@ class HomePage extends ConsumerStatefulWidget {
 class _HomePageState extends ConsumerState<HomePage> {
   late Box noteBox;
   final settingsBox = Hive.box('settings');
-
-  Color getColorFromSettings(String colorKey) {
-    switch (colorKey) {
-      case 'Green':
-        return Colors.green.shade800;
-      case 'Blue':
-        return Colors.blue.shade900;
-      case 'Red':
-        return Colors.red.shade900;
-      case 'Purple':
-        return const Color.fromRGBO(45, 31, 242, 1.0);
-
-      default:
-        return Colors.black;
-    }
-  }
-
-  int getSortOptions(String sorting, int index) {
-    int reversedIndex = noteBox.length - 1 - index;
-    switch (sorting) {
-      case 'Newest':
-        return reversedIndex;
-      case 'Oldest':
-        return index;
-
-      default:
-        index;
-    }
-    return reversedIndex;
-  }
 
   @override
   void initState() {
@@ -73,9 +44,9 @@ class _HomePageState extends ConsumerState<HomePage> {
           IconButton(
               onPressed: () => Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => const SettingsPage(),
-                  )),
+                  PageTransition(
+                      child: const SettingsPage(),
+                      type: PageTransitionType.fade)),
               icon: const Icon(Icons.settings))
         ],
       ),
@@ -86,9 +57,9 @@ class _HomePageState extends ConsumerState<HomePage> {
           onPressed: () {
             Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => const NoteCreationPage(),
-                ));
+                PageTransition(
+                    child: const NoteCreationPage(),
+                    type: PageTransitionType.bottomToTop));
           },
           backgroundColor:
               getColorFromSettings(ref.watch(selectedColorOption).toString()),
@@ -112,8 +83,8 @@ class _HomePageState extends ConsumerState<HomePage> {
             return ListView.builder(
               itemCount: noteBox.length,
               itemBuilder: (context, index) {
-                Note note = noteBox.getAt(
-                    getSortOptions(ref.watch(sortByOption).toString(), index))!;
+                Note note = noteBox.getAt(getSortOptions(
+                    ref.watch(sortByOption).toString(), index, noteBox))!;
                 return Container(
                   margin:
                       const EdgeInsets.only(bottom: 10, left: 20, right: 20),
@@ -132,12 +103,12 @@ class _HomePageState extends ConsumerState<HomePage> {
                     onTap: () {
                       Navigator.push(
                           context,
-                          MaterialPageRoute(
-                            builder: (context) => NoteDetailsPage(
-                              noteInfo: note,
-                              index: index,
-                            ),
-                          ));
+                          PageTransition(
+                              child: NoteDetailsPage(
+                                noteInfo: note,
+                                index: index,
+                              ),
+                              type: PageTransitionType.rightToLeft));
                     },
                     title: Text(note.title),
                     subtitle: Text(note.date?.substring(0, 19) ?? ''),
