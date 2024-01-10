@@ -28,8 +28,8 @@ class _NoteDetailsPageState extends ConsumerState<NoteDetailsPage> {
   @override
   void initState() {
     noteBox = Hive.box('notes');
-    titleController.text = widget.noteInfo.title;
-    contentController.text = widget.noteInfo.content;
+    titleController.text = widget.noteInfo.title!;
+    contentController.text = widget.noteInfo.content!;
 
     contentController.addListener(characterListen);
     Future.microtask(() => characterListen());
@@ -95,9 +95,15 @@ class _NoteDetailsPageState extends ConsumerState<NoteDetailsPage> {
           IconButton(
               onPressed: () {
                 final newNote = Note(
-                    title: titleController.text,
-                    content: contentController.text,
-                    date: DateTime.now().toString());
+                  title: titleController.text,
+                  content: contentController.text,
+                  date: DateTime.now().toString(),
+                  localID: widget.noteInfo.localID,
+                  isUploaded: widget.noteInfo.isUploaded,
+                  noteID: widget.noteInfo.noteID,
+                  userUID: widget.noteInfo.userUID,
+                  sharedUsers: widget.noteInfo.sharedUsers,
+                );
                 noteBox.putAt(widget.index, newNote);
                 Navigator.pop(context);
               },

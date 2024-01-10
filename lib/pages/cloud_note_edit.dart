@@ -1,19 +1,22 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
-import 'package:realmnotes/models/note_model.dart';
 import 'package:realmnotes/provider.dart';
 
-class NoteCreationPage extends ConsumerStatefulWidget {
-  const NoteCreationPage({super.key});
+import '../models/note_model.dart';
+
+class CloudNotePage extends ConsumerStatefulWidget {
+  final Note noteInfo;
+
+  const CloudNotePage({super.key, required this.noteInfo});
 
   @override
-  ConsumerState<NoteCreationPage> createState() => _NoteCreationPageState();
+  ConsumerState<CloudNotePage> createState() => _CloudNotePageState();
 }
 
-class _NoteCreationPageState extends ConsumerState<NoteCreationPage> {
+class _CloudNotePageState extends ConsumerState<CloudNotePage> {
   final TextEditingController titleController = TextEditingController();
   final TextEditingController contentController = TextEditingController();
   final UndoHistoryController undoRedoController = UndoHistoryController();
@@ -21,10 +24,11 @@ class _NoteCreationPageState extends ConsumerState<NoteCreationPage> {
   Color enabledStyle = Colors.white;
   Color disabledStyle = Colors.grey.shade800;
 
-  late Box noteBox;
   @override
   void initState() {
-    noteBox = Hive.box('notes');
+    titleController.text = widget.noteInfo.title!;
+    contentController.text = widget.noteInfo.content!;
+
     contentController.addListener(characterListen);
     Future.microtask(() => characterListen());
     super.initState();
@@ -34,8 +38,8 @@ class _NoteCreationPageState extends ConsumerState<NoteCreationPage> {
   void dispose() {
     titleController.dispose();
     contentController.dispose();
-    undoRedoController.dispose();
     contentController.removeListener(characterListen);
+    undoRedoController.dispose();
     super.dispose();
   }
 
@@ -87,74 +91,65 @@ class _NoteCreationPageState extends ConsumerState<NoteCreationPage> {
               },
               icon: const Icon(Icons.copy)),
           IconButton(
-              onPressed: () async {
-                var newNote = Note(
+              onPressed: () {
+                final newNote = Note(
                   title: titleController.text,
                   content: contentController.text,
                   date: DateTime.now().toString(),
-                  localID: 0,
-                  isUploaded: false,
-                  noteID: '',
-                  userUID: FirebaseAuth.instance.currentUser?.uid ?? '',
-                  sharedUsers: [],
+                  localID: widget.noteInfo.localID,
+                  isUploaded: widget.noteInfo.isUploaded,
+                  noteID: widget.noteInfo.noteID,
+                  userUID: widget.noteInfo.userUID,
+                  sharedUsers: widget.noteInfo.sharedUsers,
                 );
-                var key = await noteBox.add(newNote);
-                newNote.localID = key;
-                newNote.noteID =
-                    '${FirebaseAuth.instance.currentUser?.uid}_$key';
-                noteBox.put(key, newNote);
+                FirebaseFirestore.instance
+                    .collection('notes')
+                    .doc(widget.noteInfo.noteID)
+                    .update(newNote.toJson());
                 Navigator.pop(context);
               },
               icon: const Icon(Icons.check))
         ],
       ),
-      body: ValueListenableBuilder(
-        valueListenable: undoRedoController,
-        builder: (context, value, child) {
-          return Padding(
-            padding: const EdgeInsets.only(left: 20, right: 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      body: Padding(
+        padding: const EdgeInsets.only(left: 20, right: 20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TextField(
+              style: const TextStyle(height: 2, fontSize: 30),
+              controller: titleController,
+              decoration: const InputDecoration(
+                hintText: 'Title',
+                border: InputBorder.none,
+              ),
+            ),
+            Row(
               children: [
-                TextField(
-                  style: const TextStyle(height: 2, fontSize: 30),
-                  controller: titleController,
-                  decoration: const InputDecoration(
-                    hintText: 'Title',
-                    border: InputBorder.none,
-                  ),
+                Text(
+                  widget.noteInfo.date?.substring(0, 19) ?? '',
+                  style: const TextStyle(
+                      color: Color.fromARGB(92, 238, 238, 238), fontSize: 13),
                 ),
-                Row(
-                  children: [
-                    Text(
-                      DateTime.now().toString().substring(0, 19),
-                      style: const TextStyle(
-                          color: Color.fromARGB(92, 238, 238, 238),
-                          fontSize: 13),
-                    ),
-                    Text(
-                      '   |   ${ref.watch(characterProvider)} characters',
-                      style: const TextStyle(
-                          color: Color.fromARGB(92, 238, 238, 238),
-                          fontSize: 13),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                TextField(
-                  undoController: undoRedoController,
-                  controller: contentController,
-                  style: const TextStyle(fontSize: 17),
-                  maxLines: null,
-                  decoration: const InputDecoration(
-                    hintText: 'Start typing',
-                    border: InputBorder.none,
-                  ),
+                Text(
+                  '   |   ${ref.watch(characterProvider)} characters',
+                  style: const TextStyle(
+                      color: Color.fromARGB(92, 238, 238, 238), fontSize: 13),
                 ),
               ],
             ),
-          );
-        },
+            const SizedBox(height: 10),
+            TextField(
+              controller: contentController,
+              undoController: undoRedoController,
+              maxLines: null,
+              decoration: const InputDecoration(
+                  hintText: 'Start typing',
+                  border: InputBorder.none,
+                  hintStyle: TextStyle(fontSize: 15)),
+            ),
+          ],
+        ),
       ),
     );
   }

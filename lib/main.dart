@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:realmnotes/firebase_options.dart';
 import 'package:realmnotes/models/note_model.dart';
+import 'package:realmnotes/models/share_info.dart';
 import 'package:realmnotes/page_redirectors/auth.dart';
 import 'package:realmnotes/provider.dart';
 import 'pages/home_page.dart';
@@ -13,6 +14,7 @@ import 'setting_services.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   Hive.registerAdapter(NoteAdapter());
+  Hive.registerAdapter(ShareInfoAdapter());
 
   await Hive.initFlutter();
   await Hive.openBox('notes');

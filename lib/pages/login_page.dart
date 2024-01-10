@@ -31,6 +31,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   void dispose() {
     emailController.dispose();
     passwordController.dispose();
+
     super.dispose();
   }
 
@@ -81,7 +82,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   border: const OutlineInputBorder(),
                   hintText: 'Password'),
             ),
-            Text(ref.watch(errorMessageProvider).toString()),
+            const SizedBox(height: 10),
+            Text(
+              ref.watch(errorMessageProvider).toString(),
+              style: const TextStyle(color: Colors.red, fontSize: 11),
+            ),
             const SizedBox(height: 20),
             SizedBox(
               height: 50,
