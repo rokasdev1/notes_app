@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:realmnotes/models/note_model.dart';
@@ -35,43 +36,35 @@ class _PopupMenuButtonState extends ConsumerState<PopupMenuButtonWidget> {
           icon: Icons.delete_outline,
           onTap: () {
             showDialog(
-              context: context,
-              builder: (context) {
-                return BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                  child: AlertDialog(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    backgroundColor: getColorFromSettings(
-                        ref.watch(selectedColorOption).toString()),
-                    title: const Text(
-                      'Are you sure?',
-                    ),
-                    content: IconButton(
-                        onPressed: () async {
-                          if (widget.note.isUploaded == true) {
-                            widget.noteBox
-                                .delete(widget.note.localID ?? widget.index);
-                            await FirebaseFirestore.instance
-                                .collection('notes')
-                                .doc(widget.note.localID.toString())
-                                .delete();
+                context: context,
+                builder: (BuildContext context) => CupertinoAlertDialog(
+                      title: const Text("Are you sure?"),
+                      actions: [
+                        CupertinoDialogAction(
+                          isDefaultAction: true,
+                          onPressed: () async {
+                            if (widget.note.isUploaded == true) {
+                              widget.noteBox.delete(widget.note.localID ?? 0);
+                              await FirebaseFirestore.instance
+                                  .collection('notes')
+                                  .doc(widget.note.noteID.toString())
+                                  .delete();
+                            } else {
+                              widget.noteBox.delete(widget.note.localID ?? 0);
+                            }
                             Navigator.pop(context);
-                          } else {
-                            widget.noteBox
-                                .delete(widget.note.localID ?? widget.index);
-                          }
-                          widget.noteBox.deleteAt(widget.index);
-                          Navigator.pop(context);
-                        },
-                        icon: const Icon(
-                          Icons.delete,
-                        )),
-                  ),
-                );
-              },
-            );
+                          },
+                          child: const Text("No"),
+                        ),
+                        CupertinoDialogAction(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text(
+                            'Delete',
+                            style: TextStyle(color: Colors.red),
+                          ),
+                        )
+                      ],
+                    ));
           },
         ),
         widget.note.isUploaded == false

@@ -107,6 +107,8 @@ class _CloudNotePageState extends ConsumerState<CloudNotePage> {
                     .doc(widget.noteInfo.noteID)
                     .update(newNote.toJson());
                 Navigator.pop(context);
+
+                Hive.box('noteBox').put(widget.noteInfo.localID, newNote);
               },
               icon: const Icon(Icons.check))
         ],

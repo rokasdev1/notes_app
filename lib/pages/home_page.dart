@@ -230,6 +230,7 @@ class _HomePageState extends ConsumerState<HomePage> {
         itemCount: noteBox.length,
         itemBuilder: (context, index) {
           return Container(
+            margin: const EdgeInsets.only(bottom: 10),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                   begin: Alignment.centerRight,
@@ -253,8 +254,16 @@ class _HomePageState extends ConsumerState<HomePage> {
                   showDialog(
                     context: context,
                     builder: (context) => AlertDialog(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20)),
+                      backgroundColor: Colors.grey.shade900,
                       title: Text(note.title ?? ''),
-                      actions: [Text(note.date ?? '')],
+                      actions: [
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(note.date?.substring(0, 10) ?? ''),
+                        )
+                      ],
                       content: Text(note.content ?? ''),
                     ),
                   );

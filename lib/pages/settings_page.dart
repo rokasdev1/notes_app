@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -43,6 +44,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               style: TextStyle(fontSize: 15, color: Colors.grey),
             ),
             ListTile(
+              onTap: () {},
               title: Text(
                 FirebaseAuth.instance.currentUser?.email ?? '',
                 style: const TextStyle(fontSize: 17),

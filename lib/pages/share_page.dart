@@ -1,4 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:realmnotes/models/share_info.dart';
@@ -38,7 +40,11 @@ class _SharePageState extends State<SharePage> {
           } else if (snapshot.hasData) {
             final users = snapshot.data!;
             return ListView(
-              children: users.map(buildUsers).toList(),
+              children: users.map(
+                (e) {
+                  return buildUsers(e, widget.note);
+                },
+              ).toList(),
             );
           } else {
             return const CircularProgressIndicator();
@@ -48,15 +54,27 @@ class _SharePageState extends State<SharePage> {
     );
   }
 
-  Widget buildUsers(UserClass user) {
-    return ListTile(
-      title: Text(user.name),
-      subtitle: Text(user.email),
-      trailing: CheckboxWidget(user: user),
-      onTap: () {
-        shareNote(user.uid, user.isChecked ? 'edit' : 'view');
-      },
-    );
+  Widget buildUsers(UserClass user, Note note) {
+    String currentUserUID = FirebaseAuth.instance.currentUser!.uid.toString();
+    bool isCurrentUserShared = note.sharedUsers!.any((e) {
+      return user.uid == currentUserUID;
+    });
+    if (isCurrentUserShared == true) {
+      return const SizedBox();
+    } else if (isCurrentUserShared == false) {
+      return ListTile(
+        title: Text(user.name),
+        subtitle: Text(user.email),
+        trailing: CheckboxWidget(user: user),
+        onTap: () {
+          setState(() {
+            shareNote(user.uid, user.isChecked ? 'edit' : 'view');
+          });
+        },
+      );
+    } else {
+      return const CircularProgressIndicator();
+    }
   }
 
   void shareNote(String uid, String shareLevel) async {
