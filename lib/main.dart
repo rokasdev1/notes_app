@@ -61,7 +61,10 @@ class _MyAppState extends ConsumerState<MyApp> {
       ),
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(brightness: Brightness.dark),
+        theme: ThemeData(
+            brightness: Brightness.dark,
+            fontFamily: 'SF',
+            primarySwatch: Colors.deepPurple),
         home: const AuthPage(),
       ),
     );

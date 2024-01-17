@@ -7,8 +7,7 @@ import 'package:realmnotes/setting_services.dart';
 import '../models/user_model.dart';
 
 class RegisterPage extends ConsumerStatefulWidget {
-  final Function()? onTap;
-  const RegisterPage({super.key, required this.onTap});
+  const RegisterPage({super.key});
 
   @override
   ConsumerState<RegisterPage> createState() => _RegisterPageState();
@@ -35,6 +34,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
     } on FirebaseAuthException catch (e) {
       ref.read(errorMessageProvider.notifier).update((state) => e.message!);
     }
+    Navigator.pop(context);
   }
 
   @override
@@ -49,56 +49,76 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromRGBO(7, 7, 11, 1.0),
+      backgroundColor: const Color.fromRGBO(12, 1, 43, 1),
+      appBar: AppBar(
+        backgroundColor: const Color.fromRGBO(12, 1, 43, 1),
+        title: const Text('Sign up'),
+        centerTitle: true,
+        elevation: 0,
+      ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Text('Already have an acccount? '),
-          GestureDetector(
-            onTap: widget.onTap,
-            child: Text(
-              'Login instead',
-              style: TextStyle(
-                  color: getColorFromSettings(
-                      ref.read(selectedColorOption).toString())),
-            ),
-          ),
-        ],
+      floatingActionButton: Text(
+        'By registering, you accept our EULA',
+        style: TextStyle(color: Colors.deepPurple.shade100),
       ),
       body: Padding(
         padding: const EdgeInsets.only(left: 10, right: 10),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Welcome!',
-              style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
+            const SizedBox(height: 40),
+            Text(
+              'Name',
+              style: TextStyle(color: Colors.deepPurple.shade200, fontSize: 12),
             ),
-            const Text('Enter your credentials'),
-            const SizedBox(height: 80),
+            const SizedBox(height: 5),
             TextField(
               controller: nameController,
               decoration: InputDecoration(
-                  hintStyle: TextStyle(color: Colors.grey.shade700),
-                  border: const OutlineInputBorder(),
-                  hintText: 'Name'),
+                hintStyle: TextStyle(color: Colors.grey.shade700),
+                fillColor: Colors.deepPurple.shade900,
+                filled: true,
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                    borderSide: BorderSide.none),
+              ),
             ),
             const SizedBox(height: 10),
+            Text(
+              'Email address',
+              style: TextStyle(color: Colors.deepPurple.shade200, fontSize: 12),
+            ),
+            const SizedBox(height: 5),
             TextField(
               controller: emailController,
               decoration: InputDecoration(
-                  hintStyle: TextStyle(color: Colors.grey.shade700),
-                  border: const OutlineInputBorder(),
-                  hintText: 'Email'),
+                hintStyle: TextStyle(color: Colors.grey.shade700),
+                fillColor: Colors.deepPurple.shade900,
+                filled: true,
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                    borderSide: BorderSide.none),
+              ),
             ),
             const SizedBox(height: 10),
+            Text(
+              'Password',
+              style: TextStyle(color: Colors.deepPurple.shade200, fontSize: 12),
+            ),
+            const SizedBox(height: 5),
             TextField(
+              obscureText: true,
               controller: passwordController,
               decoration: InputDecoration(
-                  hintStyle: TextStyle(color: Colors.grey.shade700),
-                  border: const OutlineInputBorder(),
-                  hintText: 'Password'),
+                hintStyle: TextStyle(color: Colors.grey.shade700),
+                fillColor: Colors.deepPurple.shade900,
+                filled: true,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(15),
+                  borderSide: BorderSide.none,
+                ),
+              ),
             ),
             const SizedBox(height: 10),
             Text(
@@ -112,11 +132,9 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
               child: ElevatedButton(
                 onPressed: signUserUp,
                 style: ElevatedButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15)),
-                  backgroundColor: getColorFromSettings(
-                      ref.watch(selectedColorOption).toString()),
-                ),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15)),
+                    backgroundColor: Colors.deepPurple.shade600),
                 child: const Text(
                   'Register',
                   style: TextStyle(fontSize: 20),

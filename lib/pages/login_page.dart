@@ -5,8 +5,7 @@ import 'package:realmnotes/provider.dart';
 import 'package:realmnotes/setting_services.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
-  final Function()? onTap;
-  const LoginPage({super.key, required this.onTap});
+  const LoginPage({super.key});
 
   @override
   ConsumerState<LoginPage> createState() => _LoginPageState();
@@ -25,6 +24,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     } on FirebaseAuthException catch (e) {
       ref.read(errorMessageProvider.notifier).update((state) => e.message!);
     }
+    Navigator.pop(context);
   }
 
   @override
@@ -38,49 +38,55 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false,
-      backgroundColor: const Color.fromRGBO(7, 7, 11, 1.0),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Text('No acccount? '),
-          GestureDetector(
-            onTap: widget.onTap,
-            child: Text(
-              'Register instead',
-              style: TextStyle(
-                  color: getColorFromSettings(
-                      ref.read(selectedColorOption).toString())),
-            ),
-          ),
-        ],
+      backgroundColor: const Color.fromRGBO(12, 1, 43, 1),
+      appBar: AppBar(
+        backgroundColor: const Color.fromRGBO(12, 1, 43, 1),
+        title: const Text('Log in'),
+        centerTitle: true,
+        elevation: 0,
       ),
+      resizeToAvoidBottomInset: false,
       body: Padding(
         padding: const EdgeInsets.only(left: 10, right: 10),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Welcome!',
-              style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
+            const SizedBox(height: 40),
+            Text(
+              'Email address',
+              style: TextStyle(color: Colors.deepPurple.shade200, fontSize: 12),
             ),
-            const Text('Enter your credentials'),
-            const SizedBox(height: 80),
+            const SizedBox(height: 5),
             TextField(
               controller: emailController,
               decoration: InputDecoration(
-                  hintStyle: TextStyle(color: Colors.grey.shade700),
-                  border: const OutlineInputBorder(),
-                  hintText: 'Email'),
+                hintStyle: TextStyle(color: Colors.grey.shade700),
+                fillColor: Colors.deepPurple.shade900,
+                filled: true,
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                    borderSide: BorderSide.none),
+              ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 15),
+            Text(
+              'Password',
+              style: TextStyle(color: Colors.deepPurple.shade200, fontSize: 12),
+            ),
+            const SizedBox(height: 5),
             TextField(
               controller: passwordController,
+              obscureText: true,
               decoration: InputDecoration(
-                  hintStyle: TextStyle(color: Colors.grey.shade700),
-                  border: const OutlineInputBorder(),
-                  hintText: 'Password'),
+                hintStyle: TextStyle(color: Colors.grey.shade700),
+                fillColor: Colors.deepPurple.shade900,
+                filled: true,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(15),
+                  borderSide: BorderSide.none,
+                ),
+              ),
             ),
             const SizedBox(height: 10),
             Text(
@@ -94,11 +100,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               child: ElevatedButton(
                 onPressed: signUserIn,
                 style: ElevatedButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15)),
-                  backgroundColor: getColorFromSettings(
-                      ref.watch(selectedColorOption).toString()),
-                ),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15)),
+                    backgroundColor: Colors.deepPurple.shade600),
                 child: const Text(
                   'Login',
                   style: TextStyle(fontSize: 20),
