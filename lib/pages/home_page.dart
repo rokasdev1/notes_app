@@ -190,6 +190,9 @@ class _HomePageState extends ConsumerState<HomePage> {
                         } else if (snapshot.hasData) {
                           final notes = snapshot.data!;
                           return ListView(
+                            scrollDirection: Axis.vertical,
+                            physics: const NeverScrollableScrollPhysics(),
+                            shrinkWrap: true,
                             children: notes.map(buildNotes).toList(),
                           );
                         } else {
@@ -223,57 +226,48 @@ class _HomePageState extends ConsumerState<HomePage> {
       }
     });
     if (isCurrentUserShared) {
-      return ListView.builder(
-        scrollDirection: Axis.vertical,
-        physics: const NeverScrollableScrollPhysics(),
-        shrinkWrap: true,
-        itemCount: noteBox.length,
-        itemBuilder: (context, index) {
-          return Container(
-            margin: const EdgeInsets.only(bottom: 10),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                  begin: Alignment.centerRight,
-                  end: Alignment.centerLeft,
-                  colors: [
-                    Colors.black,
-                    getColorFromSettings(
-                        ref.watch(selectedColorOption).toString())
-                  ]),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: ListTile(
-              onTap: () {
-                if (isEditAllowedForUser == true) {
-                  Navigator.push(
-                      context,
-                      PageTransition(
-                          child: CloudNotePage(noteInfo: note),
-                          type: PageTransitionType.rightToLeft));
-                } else {
-                  showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20)),
-                      backgroundColor: Colors.grey.shade900,
-                      title: Text(note.title ?? ''),
-                      actions: [
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(note.date?.substring(0, 10) ?? ''),
-                        )
-                      ],
-                      content: Text(note.content ?? ''),
-                    ),
-                  );
-                }
-              },
-              title: Text(note.title ?? ''),
-              subtitle: Text(note.date?.substring(0, 19) ?? ''),
-            ),
-          );
-        },
+      return Container(
+        margin: const EdgeInsets.only(bottom: 10),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+              begin: Alignment.centerRight,
+              end: Alignment.centerLeft,
+              colors: [
+                Colors.black,
+                getColorFromSettings(ref.watch(selectedColorOption).toString())
+              ]),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: ListTile(
+          onTap: () {
+            if (isEditAllowedForUser == true) {
+              Navigator.push(
+                  context,
+                  PageTransition(
+                      child: CloudNotePage(noteInfo: note),
+                      type: PageTransitionType.rightToLeft));
+            } else {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
+                  backgroundColor: Colors.grey.shade900,
+                  title: Text(note.title ?? ''),
+                  actions: [
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(note.date?.substring(0, 10) ?? ''),
+                    )
+                  ],
+                  content: Text(note.content ?? ''),
+                ),
+              );
+            }
+          },
+          title: Text(note.title ?? ''),
+          subtitle: Text(note.date?.substring(0, 19) ?? ''),
+        ),
       );
     } else {
       return const Text('No notes found');

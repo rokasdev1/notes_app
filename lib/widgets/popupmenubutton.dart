@@ -42,6 +42,10 @@ class _PopupMenuButtonState extends ConsumerState<PopupMenuButtonWidget> {
                       actions: [
                         CupertinoDialogAction(
                           isDefaultAction: true,
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text("No"),
+                        ),
+                        CupertinoDialogAction(
                           onPressed: () async {
                             if (widget.note.isUploaded == true) {
                               widget.noteBox.delete(widget.note.localID ?? 0);
@@ -54,10 +58,6 @@ class _PopupMenuButtonState extends ConsumerState<PopupMenuButtonWidget> {
                             }
                             Navigator.pop(context);
                           },
-                          child: const Text("No"),
-                        ),
-                        CupertinoDialogAction(
-                          onPressed: () => Navigator.pop(context),
                           child: const Text(
                             'Delete',
                             style: TextStyle(color: Colors.red),
