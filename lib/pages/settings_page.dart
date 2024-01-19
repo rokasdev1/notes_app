@@ -1,9 +1,15 @@
+import 'dart:io';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:realmnotes/models/user_model.dart';
 import 'package:realmnotes/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -16,10 +22,18 @@ class SettingsPage extends ConsumerStatefulWidget {
 
 class _SettingsPageState extends ConsumerState<SettingsPage> {
   final settingsBox = Hive.box('settings');
-
   var colorOptions = ['Purple', 'Green', 'Blue', 'Red'];
   var fontSizeOptions = ['Small', 'Medium', 'Large'];
   var sortByOptions = ['Newest', 'Oldest'];
+  final currentUserUID = FirebaseAuth.instance.currentUser!.uid;
+  XFile? image;
+  String? imageUrl;
+  UploadTask? uploadTask;
+  final ImagePicker picker = ImagePicker();
+
+  Future getImage() async {
+    image = await picker.pickImage(source: ImageSource.gallery);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,13 +57,95 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               'Account',
               style: TextStyle(fontSize: 15, color: Colors.grey),
             ),
-            ListTile(
-              onTap: () {},
-              title: Text(
-                FirebaseAuth.instance.currentUser?.email ?? '',
-                style: const TextStyle(fontSize: 17),
-              ),
-            ),
+            StreamBuilder(
+                stream: FirebaseFirestore.instance
+                    .collection('users')
+                    .doc(currentUserUID)
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return const Text('No account');
+                  } else if (snapshot.hasData) {
+                    final userData = snapshot.data!;
+                    return ListTile(
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => Dialog(
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20)),
+                            backgroundColor: const Color.fromRGBO(12, 1, 43, 1),
+                            child: Padding(
+                              padding: const EdgeInsets.all(20.0),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  GestureDetector(
+                                    onTap: () async {
+                                      await getImage();
+                                      final file = File(image!.path);
+                                      final ref = FirebaseStorage.instance
+                                          .ref()
+                                          .child('/profilePictures');
+                                      print(file);
+                                      uploadTask = ref.putFile(file);
+                                      final snapshot =
+                                          await uploadTask!.whenComplete(() {});
+                                      imageUrl =
+                                          await snapshot.ref.getDownloadURL();
+                                      await FirebaseFirestore.instance
+                                          .collection('users')
+                                          .doc(currentUserUID)
+                                          .update({'imageUrl': imageUrl});
+                                      Navigator.pop(context);
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(const SnackBar(
+                                              content: Text('Image updated')));
+                                    },
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                          border:
+                                              Border.all(color: Colors.white),
+                                          borderRadius:
+                                              BorderRadius.circular(1000)),
+                                      child: Stack(
+                                        children: [
+                                          CircleAvatar(
+                                              radius: 50,
+                                              backgroundColor:
+                                                  Colors.transparent,
+                                              backgroundImage: NetworkImage(
+                                                  userData['imageUrl'])),
+                                          const Icon(Icons.add_a_photo),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  Text(
+                                    userData['name'],
+                                    style: const TextStyle(fontSize: 20),
+                                  ),
+                                  Text(
+                                    userData['email'],
+                                    style: const TextStyle(fontSize: 12),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                      dense: true,
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(
+                        FirebaseAuth.instance.currentUser?.email ?? '',
+                        style: const TextStyle(fontSize: 17),
+                      ),
+                    );
+                  }
+                  return const CircularProgressIndicator();
+                }),
             const Divider(
               thickness: 2,
             ),

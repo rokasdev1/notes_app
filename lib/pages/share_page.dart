@@ -24,141 +24,132 @@ class _SharePageState extends State<SharePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color.fromRGBO(7, 7, 11, 1.0),
-      appBar: AppBar(
-        toolbarHeight: 100,
+    return SafeArea(
+      child: Scaffold(
+        extendBodyBehindAppBar: true,
         backgroundColor: const Color.fromRGBO(7, 7, 11, 1.0),
-        elevation: 0,
-        title: const Text(
-          'Users',
-          style: TextStyle(fontSize: 40),
-        ),
-      ),
-      body: StreamBuilder(
-        stream: readUsers(),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return Text(snapshot.error.toString());
-          } else if (snapshot.hasData) {
-            final users = snapshot.data!;
-            List<String> nameSuggestions = [];
+        body: StreamBuilder(
+          stream: readUsers(),
+          builder: (context, snapshot) {
+            if (snapshot.hasError) {
+              return Text(snapshot.error.toString());
+            } else if (snapshot.hasData) {
+              final users = snapshot.data!;
+              List<String> nameSuggestions = [];
 
-            for (UserClass user in users) {
-              nameSuggestions.add(user.name);
-            }
-
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SizedBox(
-                  height: 60,
-                  child: EasySearchBar(
-                    title: const Text('Search'),
-                    onSuggestionTap: (data) {
-                      UserClass selectedUser = users.firstWhere(
-                          (user) => user.name == data,
-                          orElse: () => UserClass(
-                              email: '',
-                              imageUrl: '',
-                              name: '',
-                              uid: '',
-                              isChecked: false));
-                      bool isCurrentUserShared =
-                          widget.note.sharedUsers!.any((e) {
-                        return selectedUser.uid == currentUserUID;
-                      });
-                      showDialog(
-                        context: context,
-                        builder: (context) => Dialog(
-                          backgroundColor: const Color.fromRGBO(12, 1, 43, 1),
-                          child: Padding(
-                            padding: const EdgeInsets.all(20.0),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Container(
-                                  decoration: BoxDecoration(
-                                      border: Border.all(color: Colors.white),
-                                      borderRadius: BorderRadius.circular(100)),
-                                  child: CircleAvatar(
-                                      radius: 50,
-                                      backgroundColor: Colors.transparent,
-                                      backgroundImage:
-                                          NetworkImage(selectedUser.imageUrl)),
-                                ),
-                                const SizedBox(height: 10),
-                                Text(
-                                  selectedUser.name,
-                                  style: const TextStyle(fontSize: 20),
-                                ),
-                                Text(
-                                  selectedUser.email,
-                                  style: const TextStyle(fontSize: 12),
-                                ),
-                                const SizedBox(height: 30),
-                                isCurrentUserShared == true
-                                    ? Container(
-                                        padding: const EdgeInsets.all(10),
-                                        decoration: BoxDecoration(
-                                            color: Colors.grey.shade800),
-                                        child: const Text(
-                                            'This note has already been shared'),
-                                      )
-                                    : Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          const Text('Edit allowed:'),
-                                          CheckboxWidget(user: selectedUser),
-                                          const SizedBox(height: 20),
-                                          ElevatedButton(
-                                              onPressed: () {
-                                                shareNote(
-                                                    selectedUser.uid,
-                                                    selectedUser.isChecked
-                                                        .toString());
-                                              },
-                                              style: ElevatedButton.styleFrom(
-                                                  shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(20),
-                                              )),
-                                              child: const Text(
-                                                'Share',
-                                                style: TextStyle(fontSize: 16),
-                                              )),
-                                        ],
-                                      )
-                              ],
-                            ),
+              for (UserClass user in users) {
+                nameSuggestions.add(user.name);
+              }
+              return SizedBox(
+                height: 60,
+                width: MediaQuery.of(context).size.width,
+                child: EasySearchBar(
+                  openOverlayOnSearch: true,
+                  onSearch: (p0) => searchValue = p0,
+                  suggestions: nameSuggestions,
+                  title: const Text('Search bar'),
+                  foregroundColor: Colors.white,
+                  onSuggestionTap: (data) {
+                    UserClass selectedUser = users.firstWhere(
+                        (user) => user.name == data,
+                        orElse: () => UserClass(
+                            email: '',
+                            imageUrl: '',
+                            name: '',
+                            uid: '',
+                            isChecked: false));
+                    bool isCurrentUserShared =
+                        widget.note.sharedUsers!.any((e) {
+                      return selectedUser.uid == currentUserUID;
+                    });
+                    showDialog(
+                      context: context,
+                      builder: (context) => Dialog(
+                        backgroundColor: const Color.fromRGBO(12, 1, 43, 1),
+                        child: Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                    border: Border.all(color: Colors.white),
+                                    borderRadius: BorderRadius.circular(100)),
+                                child: CircleAvatar(
+                                    radius: 50,
+                                    backgroundColor: Colors.transparent,
+                                    backgroundImage:
+                                        NetworkImage(selectedUser.imageUrl)),
+                              ),
+                              const SizedBox(height: 10),
+                              Text(
+                                selectedUser.name,
+                                style: const TextStyle(fontSize: 20),
+                              ),
+                              Text(
+                                selectedUser.email,
+                                style: const TextStyle(fontSize: 12),
+                              ),
+                              const SizedBox(height: 30),
+                              isCurrentUserShared == true
+                                  ? Container(
+                                      padding: const EdgeInsets.all(10),
+                                      decoration: BoxDecoration(
+                                          color: Colors.grey.shade800),
+                                      child: const Text(
+                                          'Note has been shared with this user'),
+                                    )
+                                  : Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Text('Edit allowed:'),
+                                        CheckboxWidget(user: selectedUser),
+                                        const SizedBox(height: 20),
+                                        ElevatedButton(
+                                            onPressed: () {
+                                              shareNote(
+                                                  selectedUser.uid,
+                                                  selectedUser.isChecked
+                                                      .toString());
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                                shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(20),
+                                            )),
+                                            child: const Text(
+                                              'Share',
+                                              style: TextStyle(fontSize: 16),
+                                            )),
+                                      ],
+                                    )
+                            ],
                           ),
                         ),
-                      );
-                    },
-                    suggestionBuilder: (data) {
-                      UserClass selectedUser = users.firstWhere(
-                          (user) => user.name == data,
-                          orElse: () => UserClass(
-                              email: '',
-                              imageUrl: '',
-                              name: '',
-                              uid: '',
-                              isChecked: false));
-                      return ListTile(
-                        title: Text(selectedUser.name),
-                        subtitle: Text(selectedUser.email),
-                      );
-                    },
-                    onSearch: (p0) => searchValue = p0,
-                    suggestions: nameSuggestions,
-                  ),
+                      ),
+                    );
+                  },
+                  suggestionBuilder: (data) {
+                    UserClass selectedUser = users.firstWhere(
+                        (user) => user.name == data,
+                        orElse: () => UserClass(
+                            email: '',
+                            imageUrl: '',
+                            name: '',
+                            uid: '',
+                            isChecked: false));
+                    return ListTile(
+                      title: Text(selectedUser.name),
+                      subtitle: Text(selectedUser.email),
+                    );
+                  },
                 ),
-              ],
-            );
-          } else {
-            return const CircularProgressIndicator();
-          }
-        },
+              );
+            } else {
+              return const CircularProgressIndicator();
+            }
+          },
+        ),
       ),
     );
   }
