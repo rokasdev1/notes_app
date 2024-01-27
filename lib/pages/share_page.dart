@@ -47,7 +47,7 @@ class _SharePageState extends State<SharePage> {
                   openOverlayOnSearch: true,
                   onSearch: (p0) => searchValue = p0,
                   suggestions: nameSuggestions,
-                  title: const Text('Search bar'),
+                  title: const Text('Users'),
                   foregroundColor: Colors.white,
                   onSuggestionTap: (data) {
                     UserClass selectedUser = users.firstWhere(

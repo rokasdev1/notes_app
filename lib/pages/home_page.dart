@@ -5,11 +5,13 @@ import 'package:page_transition/page_transition.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:realmnotes/models/user_model.dart';
 import 'package:realmnotes/pages/cloud_note_edit.dart';
 import 'package:realmnotes/pages/note_creation_page.dart';
 import 'package:realmnotes/pages/note_details_page.dart';
 import 'package:realmnotes/pages/settings_page.dart';
 import 'package:realmnotes/provider.dart';
+import 'package:realmnotes/widgets/cloud_note_builder.dart';
 import 'package:realmnotes/widgets/popupmenubutton.dart';
 
 import '../models/note_model.dart';
@@ -79,7 +81,8 @@ class _HomePageState extends ConsumerState<HomePage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ButtonsTabBar(
-                backgroundColor: const Color.fromARGB(255, 68, 0, 255),
+                backgroundColor: getColorFromSettings(
+                    ref.watch(selectedColorOption).toString()),
                 radius: 20,
                 height: 40,
                 borderWidth: 1,
@@ -182,24 +185,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                         }
                       },
                     ),
-                    StreamBuilder(
-                      stream: readNotes(),
-                      builder: (context, snapshot) {
-                        if (snapshot.hasError) {
-                          return Text(snapshot.error.toString());
-                        } else if (snapshot.hasData) {
-                          final notes = snapshot.data!;
-                          return ListView(
-                            scrollDirection: Axis.vertical,
-                            physics: const NeverScrollableScrollPhysics(),
-                            shrinkWrap: true,
-                            children: notes.map(buildNotes).toList(),
-                          );
-                        } else {
-                          return const CircularProgressIndicator();
-                        }
-                      },
-                    )
+                    CloudNoteBuilder(buildNotes: buildNotes),
                   ],
                 ),
               ),
@@ -238,36 +224,54 @@ class _HomePageState extends ConsumerState<HomePage> {
               ]),
           borderRadius: BorderRadius.circular(20),
         ),
-        child: ListTile(
-          onTap: () {
-            if (isEditAllowedForUser == true) {
-              Navigator.push(
-                  context,
-                  PageTransition(
-                      child: CloudNotePage(noteInfo: note),
-                      type: PageTransitionType.rightToLeft));
-            } else {
-              showDialog(
-                context: context,
-                builder: (context) => AlertDialog(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20)),
-                  backgroundColor: Colors.grey.shade900,
+        child: StreamBuilder(
+            stream: readUsers(),
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return const Center(
+                  child: Text('Check your network'),
+                );
+              } else if (snapshot.hasData) {
+                final users = snapshot.data!;
+                UserClass author =
+                    users.firstWhere((element) => element.uid == note.userUID);
+                return ListTile(
+                  onTap: () {
+                    if (isEditAllowedForUser == true) {
+                      Navigator.push(
+                          context,
+                          PageTransition(
+                              child: CloudNotePage(noteInfo: note),
+                              type: PageTransitionType.rightToLeft));
+                    } else {
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20)),
+                          backgroundColor: Colors.grey.shade900,
+                          title: Text(note.title ?? ''),
+                          actions: [
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(note.date?.substring(0, 10) ?? ''),
+                            )
+                          ],
+                          content: Text(note.content ?? ''),
+                        ),
+                      );
+                    }
+                  },
                   title: Text(note.title ?? ''),
-                  actions: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(note.date?.substring(0, 10) ?? ''),
-                    )
-                  ],
-                  content: Text(note.content ?? ''),
-                ),
-              );
-            }
-          },
-          title: Text(note.title ?? ''),
-          subtitle: Text(note.date?.substring(0, 19) ?? ''),
-        ),
+                  subtitle: Text(note.date?.substring(0, 19) ?? ''),
+                  trailing: SizedBox(
+                    width: 45,
+                    child: FittedBox(child: Text(author.name)),
+                  ),
+                );
+              }
+              return const CircularProgressIndicator();
+            }),
       );
     } else {
       return const Text('No notes found');
