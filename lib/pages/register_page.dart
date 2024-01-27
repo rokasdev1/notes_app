@@ -2,8 +2,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:realmnotes/provider.dart';
-import 'package:realmnotes/setting_services.dart';
-
 import '../models/user_model.dart';
 
 class RegisterPage extends ConsumerStatefulWidget {

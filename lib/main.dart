@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -7,8 +9,6 @@ import 'package:realmnotes/models/note_model.dart';
 import 'package:realmnotes/models/share_info.dart';
 import 'package:realmnotes/page_redirectors/auth.dart';
 import 'package:realmnotes/provider.dart';
-import 'pages/home_page.dart';
-import 'pages/login_page.dart';
 import 'setting_services.dart';
 
 void main() async {
@@ -36,6 +36,31 @@ class MyApp extends ConsumerStatefulWidget {
 
 class _MyAppState extends ConsumerState<MyApp> {
   final settingsBox = Hive.box('settings');
+  var noteBox = Hive.box('notes');
+  late var notes;
+
+  void getAndSetData() async {
+    if (FirebaseAuth.instance.currentUser != null) {
+      QuerySnapshot querySnapshot =
+          await FirebaseFirestore.instance.collection('notes').get();
+      notes = querySnapshot.docs.map(
+        (e) {
+          return Note(
+              title: e['title'],
+              date: e['date'],
+              content: e['content'],
+              localID: e['localID'],
+              isUploaded: e['isUploaded'],
+              noteID: e['noteID'],
+              userUID: e['userUID'],
+              sharedUsers: e['sharedUsers']);
+        },
+      );
+      for (Note note in notes) {
+        noteBox.put(note.localID, note);
+      }
+    } else {}
+  }
 
   @override
   void initState() {
@@ -50,6 +75,8 @@ class _MyAppState extends ConsumerState<MyApp> {
           .read(sortByOption.notifier)
           .update((state) => settingsBox.get(3) ?? 'Newest');
     });
+    getAndSetData();
+
     super.initState();
   }
 

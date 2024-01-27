@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:realmnotes/pages/login_page.dart';
 import 'package:realmnotes/pages/register_page.dart';
-import 'package:realmnotes/widgets/gap.dart';
 
 class FirstPage extends StatelessWidget {
   const FirstPage({super.key});

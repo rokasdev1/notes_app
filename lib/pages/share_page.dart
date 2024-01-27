@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_search_bar/easy_search_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:realmnotes/models/share_info.dart';
@@ -217,7 +216,6 @@ class _CheckboxWidgetState extends State<CheckboxWidget> {
       visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
       value: widget.user.isChecked,
       onChanged: (value) {
-        print(widget.user.isChecked);
         setState(() {
           widget.user.isChecked = value ?? false;
         });

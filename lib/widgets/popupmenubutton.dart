@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -7,8 +6,6 @@ import 'package:realmnotes/models/note_model.dart';
 import 'package:realmnotes/pages/share_page.dart';
 import 'package:realmnotes/widgets/app_pop_up.dart';
 import 'package:realmnotes/widgets/desktop_context_menu.dart';
-import '../provider.dart';
-import '../setting_services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 class PopupMenuButtonWidget extends ConsumerStatefulWidget {

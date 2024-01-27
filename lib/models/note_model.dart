@@ -44,6 +44,7 @@ class Note {
         'content': content,
         'date': date,
         'localID': localID,
+        'isUploaded': isUploaded,
         'noteID': noteID,
         'userUID': userUID,
         'sharedUsers': sharedUsers,

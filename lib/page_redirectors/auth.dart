@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:realmnotes/pages/first_page.dart';
 
 import '../pages/home_page.dart';
-import 'login_or_register.dart';
 
 class AuthPage extends StatelessWidget {
   const AuthPage({super.key});

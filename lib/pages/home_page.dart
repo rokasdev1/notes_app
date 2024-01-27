@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:buttons_tabbar/buttons_tabbar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:page_transition/page_transition.dart';
@@ -274,7 +273,14 @@ class _HomePageState extends ConsumerState<HomePage> {
             }),
       );
     } else {
-      return const Text('No notes found');
+      return const Center(
+          child: Padding(
+        padding: EdgeInsets.only(bottom: 50),
+        child: Text(
+          'No notes found',
+          style: TextStyle(color: Colors.grey),
+        ),
+      ));
     }
   }
 }
