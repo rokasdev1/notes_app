@@ -23,6 +23,7 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  print(FirebaseAuth.instance.currentUser!.uid);
 
   runApp(const ProviderScope(child: MyApp()));
 }
@@ -37,30 +38,6 @@ class MyApp extends ConsumerStatefulWidget {
 class _MyAppState extends ConsumerState<MyApp> {
   final settingsBox = Hive.box('settings');
   var noteBox = Hive.box('notes');
-  late var notes;
-
-  void getAndSetData() async {
-    if (FirebaseAuth.instance.currentUser != null) {
-      QuerySnapshot querySnapshot =
-          await FirebaseFirestore.instance.collection('notes').get();
-      notes = querySnapshot.docs.map(
-        (e) {
-          return Note(
-              title: e['title'],
-              date: e['date'],
-              content: e['content'],
-              localID: e['localID'],
-              isUploaded: e['isUploaded'],
-              noteID: e['noteID'],
-              userUID: e['userUID'],
-              sharedUsers: e['sharedUsers']);
-        },
-      );
-      for (Note note in notes) {
-        noteBox.put(note.localID, note);
-      }
-    } else {}
-  }
 
   @override
   void initState() {
@@ -75,7 +52,6 @@ class _MyAppState extends ConsumerState<MyApp> {
           .read(sortByOption.notifier)
           .update((state) => settingsBox.get(3) ?? 'Newest');
     });
-    getAndSetData();
 
     super.initState();
   }

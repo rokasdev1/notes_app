@@ -1,4 +1,5 @@
 import 'package:buttons_tabbar/buttons_tabbar.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:flutter/material.dart';
@@ -27,9 +28,40 @@ class _HomePageState extends ConsumerState<HomePage> {
   late Box noteBox;
   final settingsBox = Hive.box('settings');
 
+  late var notes;
+
+  void getAndSetData() async {
+    if (FirebaseAuth.instance.currentUser != null) {
+      QuerySnapshot querySnapshot =
+          await FirebaseFirestore.instance.collection('notes').get();
+
+      notes = querySnapshot.docs.map(
+        (e) {
+          return Note(
+              title: e['title'],
+              date: e['date'],
+              content: e['content'],
+              localID: e['localID'],
+              isUploaded: e['isUploaded'],
+              noteID: e['noteID'],
+              userUID: e['userUID'],
+              sharedUsers: e['sharedUsers']);
+        },
+      );
+      for (Note note in notes) {
+        bool isNoteOwned =
+            note.userUID == FirebaseAuth.instance.currentUser!.uid;
+        if (isNoteOwned == true) {
+          noteBox.put(note.localID, note);
+        } else {}
+      }
+    } else {}
+  }
+
   @override
   void initState() {
     noteBox = Hive.box('notes');
+    getAndSetData();
     super.initState();
   }
 

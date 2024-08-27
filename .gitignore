@@ -3,6 +3,7 @@
 *.log
 *.pyc
 *.swp
+*lib/firebase_options.dart
 .DS_Store
 .atom/
 .buildlog/
